@@ -1,0 +1,172 @@
+import java_cup.runtime.*;
+   
+parser code {:
+    boolean syntaxErrors = true;
+    
+    public void report_error(String message, Object info) {
+   
+        StringBuilder m = new StringBuilder("Error");
+   
+        if (info instanceof java_cup.runtime.Symbol) {
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+   
+            if (s.left >= 0) {                
+                m.append(" in line "+(s.left+1));   
+                   or equal to zero. */
+                if (s.right >= 0)                    
+                    m.append(", column "+(s.right+1));
+            }
+        }
+   
+        m.append(" : "+message);
+   
+        System.err.println(m);
+    }
+   
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        System.exit(1);
+    }
+    public void syntax_error(Symbol current_token) {
+        report_error("Syntax error at line " + (current_token.left+1) + ", column "+ current_token.right, null);
+    }
+
+:};
+   
+
+   
+/* ------------Declaration of Terminals and Non Terminals Section----------- */
+   
+/* Terminals (tokens returned by the scanner).  
+
+   Terminals that have no value are listed first and then terminals
+   that do have an value, in this case an integer value, are listed on
+   the next line down. */
+terminal TK_LPAREN, TK_RPAREN, TK_LBRACKET, TK_RBRACKET, TK_LBRACE, TK_RBRACE;
+terminal TK_MINUS, TK_PLUS, TK_TIMES, TK_DIVIDE, TK_POWER;
+terminal TK_IFEQUALS, TK_THEN, TK_NOTEQUALS, TK_SMALLER, TK_LARGER, TK_ASSIGNMENT;
+terminal TK_INT, TK_FLOAT, TK_RAT, TK_BOOL, TK_DICTIONARY, TK_SEQUENCE, TK_CHAR;
+terminal TK_IDENTIFIER, TK_IN, TK_LEN, TK_FDEF, TK_TDEF
+terminal TK_SEMI, TK_COMMA, TK_COLON;
+
+terminal Integer   TK_NUMBER;
+terminal Boolean   BOOLEAN_CONSTANT;
+   
+/* Non terminals used in the grammar section.  
+
+   Non terminals that have an object value are listed first and then
+   non terminals that have an integer value are listed.  An object
+   value means that it can be any type, it isn't set to a specific
+   type.  So it could be an Integer or a String or whatever. */
+non terminal            type, primitive_type, aggregate_type, sequence_type, dictionary_type;
+non terminal            type_definition, type_definition_body, nonempty_declaration_list, nonassign_declaration, declaration_list;
+non terminal            function_definition, type_opt, body, declaration_list, statement_list_opt;
+non terminal            variable_declaration, variable_declaration_opt, lhs_assignment_opt;
+non terminal            statement, statement_list;
+/* -------------Precedence and Associatively of Terminals Section----------- */
+   
+/*
+  Precedence of unon terminals could be defined here.  If you do define
+  precedence here you won't need to worry about precedence in the
+  Grammar Section, i.e. that TIMES should have a higher precedence
+  than PLUS.
+  
+  The precedence defined here would look something like this where the
+  lower line always will have higher precedence than the line before it.
+   
+  precedence left PLUS, MINUS; 
+  precedence left TIMES, DIVIDE; 
+*/
+
+
+/* ----------------------------Grammar Section-------------------- */
+    // Type System
+    //
+    type           ::= 
+                    primitive_type
+                    | aggregate_type
+                    | TK_IDENTIFIER
+                    ;
+    primitive_type ::= 
+                    TK_BOOL
+                    | TK_RAT
+                    | TK_INT
+                    | TK_FLOAT
+                    | TK_CHAR
+                    ;
+    aggregate_type  ::= sequence_type | dictionary_type;
+    sequence_type   ::= TK_SEQUENCE TK_SMALLER type TK_LARGER;
+    dictionary_type ::= TK_DICTIONARY TK_SMALLER type TK_COMMA type;
+   
+
+    // User Defined types
+    //
+    type_definition           ::= 
+    TK_TDEF TK_IDENTIFIER TK_LBRACE nonempty_declaration_list TK_RBRACE TK_SEMI;
+    nonempty_declaration_list ::= 
+                    nonassign_declaration
+                    | nonassign_declaration TK_COMMA declaration_list
+                    ;
+    nonassign_declaration     ::= TK_IDENTIFIER TK_COMMA type;
+
+
+    // Functions
+    //
+    function_definition           ::= 
+                    TK_FDEF TK_LPAREN declaration_list TK_RPAREN TK_LBRACE body TK_RBRACE type_opt;
+    declaration_list              ::=
+                    | nonempty_declaration_list
+                    ;
+    type_opt                      ::=
+                    | type
+                    ;
+    body                          ::=
+                    variable_declaration_list_opt statments_list_opt
+                    ;
+    statement_list_opt            ::=
+                    | statement_list
+                    ;
+
+    
+    // Variable Declaration
+    //
+    variable_declaration_list_opt ::=
+                    | variable_declaration_list
+                    ;
+    variable_declaration          ::=
+                    TK_IDENTIFIER TK_SEMI type lhs_assignment_opt;
+    lhs_assignment_opt            ::=
+                    | lhs_assignment;
+                    ;
+    
+
+    // Statements
+    //
+    statement_list     ::= statment | statement statement_list;
+    statement          ::= 
+                    assignment
+                    | read_statement
+                    | print_statement
+                    | function_call
+                    | if_statement
+                    | while_loop
+                    | forall_loop
+                    | return_statement
+                    ;
+    return_statement   ::= TK_RETURN expression TK_SEMI;
+    read_statement     ::= TK_READ TK_IDENTIFIER TK_SEMI;
+    print_statement    ::= TK_PRINT experession TK_SEMI;
+    function_call      ::= TK_IDENTIFIER TK_LPAREN expression_list TK_RPAREN TK_RPAREN TK_SEMI;
+    if_statement       ::= TK_IF TK_LPAREN expression TK_RPAREN TK_THEN body else_statement_opt TK_FI;
+    else_statement_opt ::=
+                    | else_statement
+                    ;
+    else_statement     ::= TK_ELSE body;
+    while_loop         ::= TK_WHILE TK_LPAREN expression TK_RPAREN TK_DO body TK_OD;
+    forall_loop        ::= TK_FORALL TK_LPAREN TK_IDENTIFIER TK_IN iterable TK_LPAREN TK_DO body TK_OD;
+    iterable           ::=
+                    | TK_IDENTIFIER
+                    | dictionary_constant
+                    | sequence_constant
+                    ;
+    
