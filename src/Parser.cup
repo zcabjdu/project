@@ -12,7 +12,6 @@ parser code {:
    
             if (s.left >= 0) {                
                 m.append(" in line "+(s.left+1));   
-                   or equal to zero. */
                 if (s.right >= 0)                    
                     m.append(", column "+(s.right+1));
             }
@@ -44,13 +43,15 @@ parser code {:
    the next line down. */
 terminal TK_LPAREN, TK_RPAREN, TK_LBRACKET, TK_RBRACKET, TK_LBRACE, TK_RBRACE;
 terminal TK_MINUS, TK_PLUS, TK_TIMES, TK_DIVIDE, TK_POWER;
-terminal TK_IFEQUALS, TK_THEN, TK_NOTEQUALS, TK_SMALLER, TK_LARGER, TK_ASSIGNMENT;
+terminal TK_EQUALS, TK_IMPLICATION, TK_NOTEQUALS, TK_SMALLER, TK_LARGER, TK_ASSIGNMENT, TK_SEQUALS, TK_NOT, TK_AND, TK_OR;
 terminal TK_INT, TK_FLOAT, TK_RAT, TK_BOOL, TK_DICTIONARY, TK_SEQUENCE, TK_CHAR;
-terminal TK_IDENTIFIER, TK_IN, TK_LEN, TK_FDEF, TK_TDEF
+terminal TK_IN, TK_LEN, TK_FDEF, TK_TDEF, TK_MAIN;
 terminal TK_SEMI, TK_COMMA, TK_COLON;
-
+terminal TK_ALIAS, TK_RETURN, TK_READ, TK_PRINT, TK_IF, TK_FI, TK_THEN, TK_ELSE, TK_WHILE;
+terminal TK_DO, TK_OD, TK_FORALL;
 terminal Integer   TK_NUMBER;
-terminal Boolean   BOOLEAN_CONSTANT;
+terminal Boolean   TK_BOOLEAN_CONSTANT;
+terminal String    TK_IDENTIFIER;
    
 /* Non terminals used in the grammar section.  
 
@@ -58,11 +59,15 @@ terminal Boolean   BOOLEAN_CONSTANT;
    non terminals that have an integer value are listed.  An object
    value means that it can be any type, it isn't set to a specific
    type.  So it could be an Integer or a String or whatever. */
+non terminal            program, program_declaration_list, declaration_list_opt, declaration, main_function;
 non terminal            type, primitive_type, aggregate_type, sequence_type, dictionary_type;
-non terminal            type_definition, type_definition_body, nonempty_declaration_list, nonassign_declaration, declaration_list;
-non terminal            function_definition, type_opt, body, declaration_list, statement_list_opt;
-non terminal            variable_declaration, variable_declaration_opt, lhs_assignment_opt;
-non terminal            statement, statement_list;
+non terminal            type_definition, type_definition_body, nonempty_declaration_list, nonassign_declaration;
+non terminal            function_definition, type_opt, body, declaration_list, statements_list_opt;
+non terminal            variable_declaration, variable_declaration_list_opt, lhs_assignment_opt, variable_declaration_list;
+non terminal            statement, statements_list, return_statement, read_statement, print_statement, funcion_call;
+non terminal if_statement, else_statement_opt, else_statement, while_loop, forall_loop, iterable, assingment, lhs_assignment, assignment;
+non terminal function_call, expression, expressions_list, unknown_value, dictionary_constant, sequence_constant;
+
 /* -------------Precedence and Associatively of Terminals Section----------- */
    
 /*
@@ -78,8 +83,32 @@ non terminal            statement, statement_list;
   precedence left TIMES, DIVIDE; 
 */
 
+precedence left TK_AND, TK_OR, TK_IMPLICATION;
+precedence left TK_EQUALS, TK_SEQUALS, TK_NOTEQUALS, TK_SMALLER;
+precedence left TK_PLUS, TK_MINUS;
+precedence left TK_TIMES, TK_DIVIDE;
+precedence left TK_POWER;
+precedence left TK_NOT;
+precedence left TK_LPAREN, TK_RPAREN;
+
 
 /* ----------------------------Grammar Section-------------------- */
+    program::= declaration_list_opt main_function declaration_list_opt;
+    declaration_list_opt ::=
+                    | program_declaration_list
+                    ;
+    program_declaration_list ::= 
+                    declaration
+                    | declaration  program_declaration_list
+                    ;
+
+    declaration ::=
+                    function_definition
+                    | type_definition
+                    | variable_declaration
+                    ;
+                    
+    main_function           ::= TK_MAIN TK_LBRACE body TK_RBRACE;
     // Type System
     //
     type           ::= 
@@ -107,13 +136,13 @@ non terminal            statement, statement_list;
                     nonassign_declaration
                     | nonassign_declaration TK_COMMA declaration_list
                     ;
-    nonassign_declaration     ::= TK_IDENTIFIER TK_COMMA type;
+    nonassign_declaration     ::= TK_IDENTIFIER TK_COLON type;
 
 
     // Functions
     //
     function_definition           ::= 
-                    TK_FDEF TK_LPAREN declaration_list TK_RPAREN TK_LBRACE body TK_RBRACE type_opt;
+                    TK_FDEF TK_IDENTIFIER TK_LPAREN declaration_list TK_RPAREN TK_LBRACE body TK_RBRACE type_opt TK_SEMI;
     declaration_list              ::=
                     | nonempty_declaration_list
                     ;
@@ -121,10 +150,10 @@ non terminal            statement, statement_list;
                     | type
                     ;
     body                          ::=
-                    variable_declaration_list_opt statments_list_opt
+                    variable_declaration_list_opt statements_list_opt
                     ;
-    statement_list_opt            ::=
-                    | statement_list
+    statements_list_opt           ::=
+                    | statements_list
                     ;
 
     
@@ -136,13 +165,13 @@ non terminal            statement, statement_list;
     variable_declaration          ::=
                     TK_IDENTIFIER TK_SEMI type lhs_assignment_opt;
     lhs_assignment_opt            ::=
-                    | lhs_assignment;
+                    | lhs_assignment
                     ;
     
 
     // Statements
     //
-    statement_list     ::= statment | statement statement_list;
+    statements_list     ::= statement | statement statements_list;
     statement          ::= 
                     assignment
                     | read_statement
@@ -155,8 +184,8 @@ non terminal            statement, statement_list;
                     ;
     return_statement   ::= TK_RETURN expression TK_SEMI;
     read_statement     ::= TK_READ TK_IDENTIFIER TK_SEMI;
-    print_statement    ::= TK_PRINT experession TK_SEMI;
-    function_call      ::= TK_IDENTIFIER TK_LPAREN expression_list TK_RPAREN TK_RPAREN TK_SEMI;
+    print_statement    ::= TK_PRINT expression TK_SEMI;
+    function_call      ::= TK_IDENTIFIER TK_LPAREN expressions_list TK_RPAREN TK_RPAREN TK_SEMI;
     if_statement       ::= TK_IF TK_LPAREN expression TK_RPAREN TK_THEN body else_statement_opt TK_FI;
     else_statement_opt ::=
                     | else_statement
@@ -165,8 +194,30 @@ non terminal            statement, statement_list;
     while_loop         ::= TK_WHILE TK_LPAREN expression TK_RPAREN TK_DO body TK_OD;
     forall_loop        ::= TK_FORALL TK_LPAREN TK_IDENTIFIER TK_IN iterable TK_LPAREN TK_DO body TK_OD;
     iterable           ::=
-                    | TK_IDENTIFIER
+                    unknown_value
                     | dictionary_constant
                     | sequence_constant
                     ;
-    
+    assignment         ::= TK_IDENTIFIER lhs_assignment;
+    lhs_assignment     ::= TK_ASSIGNMENT expression;
+
+
+    // Expressions
+    //
+    expression         ::=
+                    unknown_value
+                    | TK_LPAREN unknown_value TK_RPAREN
+                    | expression TK_AND expression
+                    | expression TK_OR expression
+                    | TK_NOT expression
+                    | expression TK_PLUS expression
+                    | expression TK_MINUS expression
+                    | expression TK_POWER expression
+                    | expression TK_DIVIDE expression
+                    | expression TK_TIMES expression
+                    | expression TK_SMALLER expression
+                    | expression TK_SEQUALS expression
+                    | expression TK_EQUALS expression
+                    | expression TK_NOTEQUALS expression
+                    | expression TK_IMPLICATION expression
+                    ;
