@@ -48,10 +48,10 @@ terminal TK_INT, TK_FLOAT, TK_RAT, TK_BOOL, TK_DICTIONARY, TK_SEQUENCE, TK_CHAR;
 terminal TK_IN, TK_LEN, TK_FDEF, TK_TDEF, TK_MAIN;
 terminal TK_SEMI, TK_COMMA, TK_COLON;
 terminal TK_ALIAS, TK_RETURN, TK_READ, TK_PRINT, TK_IF, TK_FI, TK_THEN, TK_ELSE, TK_WHILE;
-terminal TK_DO, TK_OD, TK_FORALL;
-terminal Integer   TK_NUMBER;
+terminal TK_DO, TK_OD, TK_FORALL, UMINUS;
+terminal Integer   TK_INTEGER;
 terminal Boolean   TK_BOOLEAN_CONSTANT;
-terminal String    TK_IDENTIFIER;
+terminal String    TK_IDENTIFIER, TK_STRING_CONSTANT;
    
 /* Non terminals used in the grammar section.  
 
@@ -63,10 +63,10 @@ non terminal            program, program_declaration_list, declaration_list_opt,
 non terminal            type, primitive_type, aggregate_type, sequence_type, dictionary_type;
 non terminal            type_definition, type_definition_body, nonempty_declaration_list, nonassign_declaration;
 non terminal            function_definition, type_opt, body, declaration_list, statements_list_opt;
-non terminal            variable_declaration, variable_declaration_list_opt, lhs_assignment_opt, variable_declaration_list;
+non terminal            variable_declaration, variable_declaration_list_opt, rhs_assignment_opt, variable_declaration_list;
 non terminal            statement, statements_list, return_statement, read_statement, print_statement, funcion_call;
-non terminal if_statement, else_statement_opt, else_statement, while_loop, forall_loop, iterable, assingment, lhs_assignment, assignment;
-non terminal function_call, expression, expressions_list, unknown_value, dictionary_constant, sequence_constant;
+non terminal if_statement, else_statement_opt, else_statement, while_loop, forall_loop, iterable, assingment, rhs_assignment, assignment;
+non terminal function_call, expression, expressions_list, expressions_list_opt, unknown_value, dictionary_constant, sequence_constant, function_call_expression;
 
 /* -------------Precedence and Associatively of Terminals Section----------- */
    
@@ -88,8 +88,10 @@ precedence left TK_EQUALS, TK_SEQUALS, TK_NOTEQUALS, TK_SMALLER;
 precedence left TK_PLUS, TK_MINUS;
 precedence left TK_TIMES, TK_DIVIDE;
 precedence left TK_POWER;
-precedence left TK_NOT;
+precedence left TK_NOT, UMINUS;
 precedence left TK_LPAREN, TK_RPAREN;
+precedence right TK_IDENTIFIER;
+precedence left TK_COLON;
 
 
 /* ----------------------------Grammar Section-------------------- */
@@ -127,15 +129,12 @@ precedence left TK_LPAREN, TK_RPAREN;
     sequence_type   ::= TK_SEQUENCE TK_SMALLER type TK_LARGER;
     dictionary_type ::= TK_DICTIONARY TK_SMALLER type TK_COMMA type;
    
-
-    // User Defined types
-    //
-    type_definition           ::= 
-    TK_TDEF TK_IDENTIFIER TK_LBRACE nonempty_declaration_list TK_RBRACE TK_SEMI;
+// User Defined types // 
+    type_definition           ::= TK_TDEF TK_IDENTIFIER TK_LBRACE nonempty_declaration_list TK_RBRACE TK_SEMI;
     nonempty_declaration_list ::= 
                     nonassign_declaration
                     | nonassign_declaration TK_COMMA declaration_list
-                    ;
+                    ;                
     nonassign_declaration     ::= TK_IDENTIFIER TK_COLON type;
 
 
@@ -152,26 +151,26 @@ precedence left TK_LPAREN, TK_RPAREN;
     body                          ::=
                     variable_declaration_list_opt statements_list_opt
                     ;
-    statements_list_opt           ::=
-                    | statements_list
-                    ;
 
     
     // Variable Declaration
     //
-    variable_declaration_list_opt ::=
-                    | variable_declaration_list
+    variable_declaration_list_opt     ::=
+                    | variable_declaration variable_declaration_list_opt
                     ;
     variable_declaration          ::=
-                    TK_IDENTIFIER TK_SEMI type lhs_assignment_opt;
-    lhs_assignment_opt            ::=
-                    | lhs_assignment
+                    TK_IDENTIFIER TK_COLON type rhs_assignment_opt TK_SEMI;
+    rhs_assignment_opt            ::=
+                    | rhs_assignment
+                    ;
+    statements_list_opt            ::=
+                    | statements_list
                     ;
     
 
     // Statements
     //
-    statements_list     ::= statement | statement statements_list;
+    statements_list    ::= statement | statement statements_list;
     statement          ::= 
                     assignment
                     | read_statement
@@ -182,10 +181,21 @@ precedence left TK_LPAREN, TK_RPAREN;
                     | forall_loop
                     | return_statement
                     ;
-    return_statement   ::= TK_RETURN expression TK_SEMI;
+    return_statement   ::= 
+                    TK_RETURN expression TK_SEMI
+                    | TK_RETURN TK_SEMI;
     read_statement     ::= TK_READ TK_IDENTIFIER TK_SEMI;
     print_statement    ::= TK_PRINT expression TK_SEMI;
-    function_call      ::= TK_IDENTIFIER TK_LPAREN expressions_list TK_RPAREN TK_RPAREN TK_SEMI;
+    function_call      ::= function_call_expression TK_SEMI;
+    function_call_expression  ::= TK_IDENTIFIER TK_LPAREN expressions_list_opt TK_RPAREN;
+    expressions_list_opt ::= 
+                    | expressions_list
+                    ;
+    expressions_list   ::=
+                    expression
+                    | expression TK_COMMA expressions_list
+                    ;
+                        
     if_statement       ::= TK_IF TK_LPAREN expression TK_RPAREN TK_THEN body else_statement_opt TK_FI;
     else_statement_opt ::=
                     | else_statement
@@ -198,18 +208,18 @@ precedence left TK_LPAREN, TK_RPAREN;
                     | dictionary_constant
                     | sequence_constant
                     ;
-    assignment         ::= TK_IDENTIFIER lhs_assignment;
-    lhs_assignment     ::= TK_ASSIGNMENT expression;
+    assignment         ::= TK_IDENTIFIER rhs_assignment TK_SEMI;
+    rhs_assignment     ::= TK_ASSIGNMENT expressions_list;
 
 
     // Expressions
     //
     expression         ::=
                     unknown_value
-                    | TK_LPAREN unknown_value TK_RPAREN
                     | expression TK_AND expression
                     | expression TK_OR expression
                     | TK_NOT expression
+                    | TK_MINUS expression %prec UMINUS
                     | expression TK_PLUS expression
                     | expression TK_MINUS expression
                     | expression TK_POWER expression
@@ -220,4 +230,12 @@ precedence left TK_LPAREN, TK_RPAREN;
                     | expression TK_EQUALS expression
                     | expression TK_NOTEQUALS expression
                     | expression TK_IMPLICATION expression
-                    ;
+                    | TK_INTEGER
+                    | TK_BOOLEAN_CONSTANT
+                    | TK_STRING_CONSTANT
+                    | TK_LPAREN expression TK_RPAREN;
+
+    unknown_value      ::=
+                    function_call_expression
+                    | TK_IDENTIFIER
+                    ; 
