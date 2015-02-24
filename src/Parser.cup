@@ -45,7 +45,7 @@ terminal TK_LPAREN, TK_RPAREN, TK_LBRACKET, TK_RBRACKET, TK_LBRACE, TK_RBRACE;
 terminal TK_MINUS, TK_PLUS, TK_TIMES, TK_DIVIDE, TK_POWER;
 terminal TK_EQUALS, TK_IMPLICATION, TK_NOTEQUALS, TK_SMALLER, TK_LARGER, TK_ASSIGNMENT, TK_SEQUALS, TK_NOT, TK_AND, TK_OR;
 terminal TK_INT, TK_FLOAT, TK_RAT, TK_BOOL, TK_DICTIONARY, TK_SEQUENCE, TK_CHAR;
-terminal TK_IN, TK_LEN, TK_FDEF, TK_TDEF, TK_MAIN;
+terminal TK_IN, TK_LEN, TK_FDEF, TK_TDEF, TK_MAIN, TK_TOP;
 terminal TK_SEMI, TK_COMMA, TK_COLON, TK_COLON_COLON;
 terminal TK_ALIAS, TK_RETURN, TK_READ, TK_PRINT, TK_IF, TK_FI, TK_THEN, TK_ELSE, TK_WHILE, TK_HALF_DECLARATION;
 terminal TK_DO, TK_OD, TK_FORALL, UMINUS;
@@ -66,8 +66,9 @@ non terminal            function_definition, type_opt, body, declaration_list, s
 non terminal            variable_declaration, variable_declaration_list_opt, rhs_assignment_opt, variable_declaration_list;
 non terminal            statement, statements_list, return_statement, read_statement, print_statement, funcion_call;
 non terminal if_statement, else_statement_opt, else_statement, while_loop, forall_loop, iterable, assingment, rhs_assignment, assignment;
-non terminal sequence_constant, dictionary_constant, len_expression, index, value_index, value_substring, substring;
+non terminal sequence_constant,  len_expression, index, value_index, value_substring, substring;
 non terminal function_call, expression, expressions_list, expressions_list_opt, unknown_value, function_call_expression;
+non terminal dictionary_constant, dictionary_list, dictionary_list_opt, dictionary_list_entry;
 
 /* -------------Precedence and Associatively of Terminals Section----------- */
    
@@ -126,8 +127,12 @@ precedence left TK_LPAREN, TK_RPAREN;
                     | TK_CHAR
                     ;
     aggregate_type  ::= sequence_type | dictionary_type;
-    sequence_type   ::= TK_SEQUENCE TK_SMALLER type TK_LARGER;
-    dictionary_type ::= TK_DICTIONARY TK_SMALLER type TK_COMMA type;
+    sequence_type   ::= 
+                    TK_SEQUENCE TK_SMALLER type TK_LARGER
+                    | TK_SEQUENCE TK_SMALLER TK_TOP TK_LARGER;
+    dictionary_type ::= 
+                    TK_DICTIONARY TK_SMALLER type TK_COMMA type TK_LARGER
+                    | TK_DICTIONARY TK_SMALLER type TK_COMMA TK_TOP TK_LARGER;
    
 // User Defined types // 
     type_definition           ::= TK_TDEF TK_IDENTIFIER TK_LBRACE nonempty_declaration_list TK_RBRACE TK_SEMI;
@@ -240,6 +245,7 @@ precedence left TK_LPAREN, TK_RPAREN;
                     | TK_BOOLEAN_CONSTANT
                     | TK_STRING_CONSTANT
                     | sequence_constant
+                    | dictionary_constant
                     | TK_LPAREN expression TK_RPAREN
                     | len_expression
                     | expression TK_IN expression
@@ -269,3 +275,14 @@ precedence left TK_LPAREN, TK_RPAREN;
                     | function_call_expression substring
                     | TK_LPAREN expression TK_RPAREN substring
                     ;
+    dictionary_constant ::= TK_LBRACE dictionary_list_opt TK_RBRACE;
+    dictionary_list_opt ::=
+                | dictionary_list;
+    dictionary_list     ::=
+                dictionary_list_entry
+                | dictionary_list_entry TK_COMMA dictionary_list
+                ;
+    dictionary_list_entry ::=
+                expression TK_COLON expression
+                | TK_HALF_DECLARATION expression
+                ;

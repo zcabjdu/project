@@ -96,6 +96,7 @@ Number = {IntegerConstant}
   "do"                           {System.out.printf("do "); return symbol(sym.TK_DO);}
   "od"                           {System.out.printf("od "); return symbol(sym.TK_OD);}
   "forall"                       {System.out.printf("forall "); return symbol(sym.TK_FORALL);}
+  "top"                          {System.out.printf("top "); return symbol(sym.TK_TOP);}
   {StringConstant}               
   {
       String str = yytext();
