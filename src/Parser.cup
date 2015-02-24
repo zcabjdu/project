@@ -46,7 +46,7 @@ terminal TK_MINUS, TK_PLUS, TK_TIMES, TK_DIVIDE, TK_POWER;
 terminal TK_EQUALS, TK_IMPLICATION, TK_NOTEQUALS, TK_SMALLER, TK_LARGER, TK_ASSIGNMENT, TK_SEQUALS, TK_NOT, TK_AND, TK_OR;
 terminal TK_INT, TK_FLOAT, TK_RAT, TK_BOOL, TK_DICTIONARY, TK_SEQUENCE, TK_CHAR;
 terminal TK_IN, TK_LEN, TK_FDEF, TK_TDEF, TK_MAIN;
-terminal TK_SEMI, TK_COMMA, TK_COLON;
+terminal TK_SEMI, TK_COMMA, TK_COLON, TK_COLON_COLON;
 terminal TK_ALIAS, TK_RETURN, TK_READ, TK_PRINT, TK_IF, TK_FI, TK_THEN, TK_ELSE, TK_WHILE, TK_HALF_DECLARATION;
 terminal TK_DO, TK_OD, TK_FORALL, UMINUS;
 terminal Integer   TK_INTEGER;
@@ -66,7 +66,8 @@ non terminal            function_definition, type_opt, body, declaration_list, s
 non terminal            variable_declaration, variable_declaration_list_opt, rhs_assignment_opt, variable_declaration_list;
 non terminal            statement, statements_list, return_statement, read_statement, print_statement, funcion_call;
 non terminal if_statement, else_statement_opt, else_statement, while_loop, forall_loop, iterable, assingment, rhs_assignment, assignment;
-non terminal function_call, expression, expressions_list, expressions_list_opt, unknown_value, dictionary_constant, sequence_constant, function_call_expression;
+non terminal sequence_constant, dictionary_constant, len_expression, index, value_index, value_substring, substring;
+non terminal function_call, expression, expressions_list, expressions_list_opt, unknown_value, function_call_expression;
 
 /* -------------Precedence and Associatively of Terminals Section----------- */
    
@@ -86,6 +87,7 @@ non terminal function_call, expression, expressions_list, expressions_list_opt, 
 precedence left TK_AND, TK_OR, TK_IMPLICATION;
 precedence left TK_EQUALS, TK_SEQUALS, TK_NOTEQUALS, TK_SMALLER;
 precedence left TK_PLUS, TK_MINUS;
+precedence left TK_IN, TK_COLON_COLON;
 precedence left TK_TIMES, TK_DIVIDE;
 precedence left TK_POWER;
 precedence left TK_NOT, UMINUS;
@@ -153,7 +155,7 @@ precedence left TK_LPAREN, TK_RPAREN;
     
     // Variable Declaration
     //
-    variable_declaration_list_opt     ::=
+    variable_declaration_list_opt ::=
                     | variable_declaration variable_declaration_list_opt
                     ;
     variable_declaration          ::=
@@ -161,7 +163,7 @@ precedence left TK_LPAREN, TK_RPAREN;
     rhs_assignment_opt            ::=
                     | rhs_assignment
                     ;
-    statements_list_opt            ::=
+    statements_list_opt           ::=
                     | statements_list
                     ;
     
@@ -206,7 +208,12 @@ precedence left TK_LPAREN, TK_RPAREN;
                     | dictionary_constant
                     | sequence_constant
                     ;
-    assignment         ::= TK_IDENTIFIER rhs_assignment TK_SEMI;
+    // can assign value to an index, cant assign value to an index of a array returned by function
+    assignment         ::= 
+                    TK_IDENTIFIER rhs_assignment TK_SEMI
+                    | TK_IDENTIFIER index rhs_assignment TK_SEMI
+                    ;
+
     rhs_assignment     ::= TK_ASSIGNMENT expressions_list;
 
 
@@ -228,12 +235,37 @@ precedence left TK_LPAREN, TK_RPAREN;
                     | expression TK_EQUALS expression
                     | expression TK_NOTEQUALS expression
                     | expression TK_IMPLICATION expression
+                    | expression TK_COLON_COLON expression
                     | TK_INTEGER
                     | TK_BOOLEAN_CONSTANT
                     | TK_STRING_CONSTANT
-                    | TK_LPAREN expression TK_RPAREN;
+                    | sequence_constant
+                    | TK_LPAREN expression TK_RPAREN
+                    | len_expression
+                    | expression TK_IN expression
+                    ;
 
     unknown_value      ::=
                     function_call_expression
                     | TK_IDENTIFIER
+                    | value_index
+                    | value_substring
                     ; 
+    sequence_constant  ::= TK_LBRACKET expressions_list_opt TK_RBRACKET;
+    len_expression     ::= TK_LEN TK_LPAREN expression TK_RPAREN;
+    index              ::= TK_LBRACKET expression TK_RBRACKET;
+    value_index        ::= 
+                    TK_IDENTIFIER index
+                    | function_call_expression index
+                    | TK_LPAREN expression TK_RPAREN index
+                    ;
+    substring          ::=
+                    TK_LBRACKET expression TK_COLON expression TK_RBRACKET
+                    | TK_LBRACKET expression TK_COLON TK_RBRACKET
+                    | TK_LBRACKET TK_COLON expression TK_RBRACKET
+                    ;
+    value_substring    ::= 
+                    TK_IDENTIFIER substring
+                    | function_call_expression substring
+                    | TK_LPAREN expression TK_RPAREN substring
+                    ;

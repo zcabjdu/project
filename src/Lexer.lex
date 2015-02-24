@@ -35,7 +35,7 @@ StringConstant    = "\"" ~"\""
 Identifier         = [a-zA-Z][a-zA-Z0-9_]*
 
 /* Ugly but needed to deal with the shift/reduce conflict when parsing the body */
-HalfDeclaration    = {Identifier}{WhiteSpace}*":" | {Identifier}{WhiteSpace}*":="
+HalfDeclaration    = {Identifier}{WhiteSpace}*":" | {Identifier}{WhiteSpace}*":"[:=]
 
 
 /* TODO: floats, rats */
@@ -56,6 +56,7 @@ Number = {IntegerConstant}
   "]"                            {System.out.printf("] "); return symbol(sym.TK_RBRACKET);}
   ":="                           {System.out.printf(":= "); return symbol(sym.TK_ASSIGNMENT);}
   ";"                            {System.out.printf("; "); return symbol(sym.TK_SEMI);}
+  "::"                            {System.out.printf(":: "); return symbol(sym.TK_COLON_COLON);}
   ":"                            {System.out.printf(": "); return symbol(sym.TK_COLON);}
   ","                            {System.out.printf(", "); return symbol(sym.TK_COMMA);}
   "-"                            {System.out.printf("- "); return symbol(sym.TK_MINUS);}
@@ -106,13 +107,13 @@ Number = {IntegerConstant}
   {Comment}                      {}
   {WhiteSpace}                   {}
   {Number}                       {System.out.printf(yytext() + " "); return symbol(sym.TK_STRING_CONSTANT, new Integer(yytext()));}
-  {BooleanConstant}              {System.out.printf("( "); return symbol(sym.TK_BOOLEAN_CONSTANT, new Boolean("T".equals(yytext())));}
+  {BooleanConstant}              {System.out.printf(yytext() + " "); return symbol(sym.TK_BOOLEAN_CONSTANT, new Boolean("T".equals(yytext())));}
   {HalfDeclaration}              
   {
       String res = yytext();
       if (res.length() > 2)
       {
-        if (res.substring(res.length() - 2).equals(":="))
+        if (res.substring(res.length() - 2).equals(":=") || res.substring(res.length() - 2).equals("::"))
         {
             String prefix = "";
             int idx = 0;
