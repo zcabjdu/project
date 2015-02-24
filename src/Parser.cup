@@ -61,11 +61,11 @@ terminal String    TK_IDENTIFIER, TK_STRING_CONSTANT;
    non terminals that have an integer value are listed.  An object
    value means that it can be any type, it isn't set to a specific
    type.  So it could be an Integer or a String or whatever. */
-non terminal            program, program_declaration_list, declaration_list_opt, declaration, main_function;
+non terminal            program, program_declaration_list, declaration_list_opt, declaration, main_function, alias_declaration;
 non terminal            type, primitive_type, aggregate_type, sequence_type, dictionary_type;
 non terminal            type_definition, type_definition_body, nonempty_declaration_list, nonassign_declaration;
-non terminal            function_definition, type_opt, body, declaration_list, statements_list_opt;
-non terminal            variable_declaration, variable_declaration_list_opt, rhs_assignment_opt, variable_declaration_list;
+non terminal            function_definition, type_opt, body, declaration_list, statements_list_opt, variable_declaration;
+non terminal            body_declaration, body_declaration_list_opt, rhs_assignment_opt, variable_declaration_list;
 non terminal            statement, statements_list, return_statement, read_statement, print_statement, funcion_call;
 non terminal if_statement, else_statement_opt, else_statement, while_loop, forall_loop, iterable, assingment, rhs_assignment, assignment;
 non terminal sequence_constant,  len_expression, index, value_index, value_substring, substring;
@@ -111,7 +111,9 @@ precedence left TK_LPAREN, TK_RPAREN;
                     function_definition
                     | type_definition
                     | variable_declaration
+                    | alias_declaration
                     ;
+    alias_declaration ::= TK_ALIAS type TK_IDENTIFIER TK_SEMI;
                     
     main_function           ::= TK_MAIN TK_LBRACE body TK_RBRACE;
     // Type System
@@ -156,17 +158,21 @@ precedence left TK_LPAREN, TK_RPAREN;
                     | TK_COLON type
                     ;
     body                          ::=
-                    variable_declaration_list_opt statements_list_opt
+                    body_declaration_list_opt statements_list_opt
                     ;
 
     
     // Variable Declaration
     //
-    variable_declaration_list_opt ::=
-                    | variable_declaration variable_declaration_list_opt
+    body_declaration_list_opt ::=
+                    | body_declaration body_declaration_list_opt
                     ;
-    variable_declaration          ::=
-                    TK_HALF_DECLARATION type rhs_assignment_opt TK_SEMI;
+    body_declaration          ::=
+                    variable_declaration
+                    | alias_declaration
+                    | type_definition
+                    ;
+    variable_declaration          ::= TK_HALF_DECLARATION type rhs_assignment_opt TK_SEMI;
     rhs_assignment_opt            ::=
                     | rhs_assignment
                     ;
