@@ -11,7 +11,7 @@ public class sym {
   public static final int TK_INT = 23;
   public static final int TK_LPAREN = 2;
   public static final int TK_SEMI = 35;
-  public static final int UMINUS = 50;
+  public static final int UMINUS = 51;
   public static final int TK_NOT = 20;
   public static final int TK_AND = 21;
   public static final int TK_COMMA = 36;
@@ -26,12 +26,13 @@ public class sym {
   public static final int TK_TDEF = 33;
   public static final int TK_BOOL = 26;
   public static final int TK_DICTIONARY = 27;
-  public static final int TK_OD = 48;
+  public static final int TK_OD = 49;
   public static final int TK_IMPLICATION = 14;
   public static final int TK_PLUS = 9;
   public static final int TK_MAIN = 34;
   public static final int TK_RETURN = 39;
   public static final int TK_LARGER = 17;
+  public static final int TK_HALF_DECLARATION = 47;
   public static final int TK_TIMES = 10;
   public static final int TK_COLON = 37;
   public static final int TK_NOTEQUALS = 15;
@@ -45,20 +46,20 @@ public class sym {
   public static final int TK_SEQUENCE = 28;
   public static final int TK_READ = 40;
   public static final int TK_ALIAS = 38;
-  public static final int TK_BOOLEAN_CONSTANT = 52;
+  public static final int TK_BOOLEAN_CONSTANT = 53;
   public static final int TK_RBRACE = 7;
   public static final int TK_LEN = 31;
   public static final int TK_THEN = 44;
   public static final int TK_PRINT = 41;
-  public static final int TK_DO = 47;
+  public static final int TK_DO = 48;
   public static final int TK_LBRACKET = 4;
-  public static final int TK_IDENTIFIER = 53;
+  public static final int TK_IDENTIFIER = 54;
   public static final int TK_POWER = 12;
   public static final int TK_ASSIGNMENT = 18;
-  public static final int TK_STRING_CONSTANT = 54;
-  public static final int TK_FORALL = 49;
+  public static final int TK_STRING_CONSTANT = 55;
+  public static final int TK_FORALL = 50;
   public static final int TK_DIVIDE = 11;
-  public static final int TK_INTEGER = 51;
+  public static final int TK_INTEGER = 52;
   public static final int TK_CHAR = 29;
   public static final int TK_SMALLER = 16;
   public static final String[] terminalNames = new String[] {
@@ -109,6 +110,7 @@ public class sym {
   "TK_THEN",
   "TK_ELSE",
   "TK_WHILE",
+  "TK_HALF_DECLARATION",
   "TK_DO",
   "TK_OD",
   "TK_FORALL",

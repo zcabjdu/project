@@ -27,13 +27,15 @@ WhiteSpace     = {NewLine} | [ \t\v\f\r]
 Comment              = {OneLineComment} | {MultipleLinesComment}
 OneLineComment       = "#" {NonNewLineChar}* {NewLine}
 MultipleLinesComment = "/#" ~"#/"
-
 /*TODO: CHAR_constant*/
 BooleanConstant   = "T" | "F"
 IntegerConstant   = [0-9]+
+StringConstant    = "\"" ~"\""
 
 Identifier         = [a-zA-Z][a-zA-Z0-9_]*
-StringConstant    = "\"" ~"\""
+
+/* Ugly but needed to deal with the shift/reduce conflict when parsing the body */
+HalfDeclaration    = {Identifier}{WhiteSpace}*":" | {Identifier}{WhiteSpace}*":="
 
 
 /* TODO: floats, rats */
@@ -52,6 +54,7 @@ Number = {IntegerConstant}
   "||"                           {System.out.printf("|| "); return symbol(sym.TK_OR);}
   "["                            {System.out.printf("[ "); return symbol(sym.TK_LBRACKET);}
   "]"                            {System.out.printf("] "); return symbol(sym.TK_RBRACKET);}
+  ":="                           {System.out.printf(":= "); return symbol(sym.TK_ASSIGNMENT);}
   ";"                            {System.out.printf("; "); return symbol(sym.TK_SEMI);}
   ":"                            {System.out.printf(": "); return symbol(sym.TK_COLON);}
   ","                            {System.out.printf(", "); return symbol(sym.TK_COMMA);}
@@ -61,7 +64,6 @@ Number = {IntegerConstant}
   "/"                            {System.out.printf("/ "); return symbol(sym.TK_DIVIDE);}
   "^"                            {System.out.printf("^ "); return symbol(sym.TK_POWER);}
   "="                            {System.out.printf("= "); return symbol(sym.TK_EQUALS);}
-  ":="                           {System.out.printf(":= "); return symbol(sym.TK_ASSIGNMENT);}
   "=>"                           {System.out.printf("=> "); return symbol(sym.TK_IMPLICATION);}
   "="                            {System.out.printf("= "); return symbol(sym.TK_EQUALS);}
   "!="                           {System.out.printf("!= "); return symbol(sym.TK_NOTEQUALS);}
@@ -105,5 +107,26 @@ Number = {IntegerConstant}
   {WhiteSpace}                   {}
   {Number}                       {System.out.printf(yytext() + " "); return symbol(sym.TK_STRING_CONSTANT, new Integer(yytext()));}
   {BooleanConstant}              {System.out.printf("( "); return symbol(sym.TK_BOOLEAN_CONSTANT, new Boolean("T".equals(yytext())));}
+  {HalfDeclaration}              
+  {
+      String res = yytext();
+      if (res.length() > 2)
+      {
+        if (res.substring(res.length() - 2).equals(":="))
+        {
+            String prefix = "";
+            int idx = 0;
+            while(res.charAt(idx) != ' ' && res.charAt(idx) != ':')
+            {
+                prefix += res.charAt(idx++);
+            }
+            yypushback(res.length() - idx);
+            System.out.printf(prefix + " ");
+            return symbol(sym.TK_IDENTIFIER, prefix);
+        }
+      }
+      System.out.printf(yytext() + " ");
+      return symbol(sym.TK_HALF_DECLARATION, yytext().substring(0, yytext().length() - 1));
+  }
   {Identifier}                   {System.out.printf(yytext() + " "); return symbol(sym.TK_IDENTIFIER, yytext());}
 }

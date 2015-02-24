@@ -47,7 +47,7 @@ terminal TK_EQUALS, TK_IMPLICATION, TK_NOTEQUALS, TK_SMALLER, TK_LARGER, TK_ASSI
 terminal TK_INT, TK_FLOAT, TK_RAT, TK_BOOL, TK_DICTIONARY, TK_SEQUENCE, TK_CHAR;
 terminal TK_IN, TK_LEN, TK_FDEF, TK_TDEF, TK_MAIN;
 terminal TK_SEMI, TK_COMMA, TK_COLON;
-terminal TK_ALIAS, TK_RETURN, TK_READ, TK_PRINT, TK_IF, TK_FI, TK_THEN, TK_ELSE, TK_WHILE;
+terminal TK_ALIAS, TK_RETURN, TK_READ, TK_PRINT, TK_IF, TK_FI, TK_THEN, TK_ELSE, TK_WHILE, TK_HALF_DECLARATION;
 terminal TK_DO, TK_OD, TK_FORALL, UMINUS;
 terminal Integer   TK_INTEGER;
 terminal Boolean   TK_BOOLEAN_CONSTANT;
@@ -90,8 +90,6 @@ precedence left TK_TIMES, TK_DIVIDE;
 precedence left TK_POWER;
 precedence left TK_NOT, UMINUS;
 precedence left TK_LPAREN, TK_RPAREN;
-precedence right TK_IDENTIFIER;
-precedence left TK_COLON;
 
 
 /* ----------------------------Grammar Section-------------------- */
@@ -135,7 +133,7 @@ precedence left TK_COLON;
                     nonassign_declaration
                     | nonassign_declaration TK_COMMA declaration_list
                     ;                
-    nonassign_declaration     ::= TK_IDENTIFIER TK_COLON type;
+    nonassign_declaration     ::= TK_HALF_DECLARATION type;
 
 
     // Functions
@@ -159,7 +157,7 @@ precedence left TK_COLON;
                     | variable_declaration variable_declaration_list_opt
                     ;
     variable_declaration          ::=
-                    TK_IDENTIFIER TK_COLON type rhs_assignment_opt TK_SEMI;
+                    TK_HALF_DECLARATION type rhs_assignment_opt TK_SEMI;
     rhs_assignment_opt            ::=
                     | rhs_assignment
                     ;
