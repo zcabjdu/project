@@ -98,7 +98,8 @@ precedence left TK_LPAREN, TK_RPAREN;
 
 
 /* ----------------------------Grammar Section-------------------- */
-    program::= declaration_list_opt main_function declaration_list_opt;
+    program::= declaration_list_opt main_function declaration_list_opt
+    {: System.out.println("parsing successful");:};
     declaration_list_opt ::=
                     | program_declaration_list
                     ;

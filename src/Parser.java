@@ -764,7 +764,7 @@ class CUP$Parser$actions {
           case 0: // program ::= declaration_list_opt main_function declaration_list_opt 
             {
               Object RESULT =null;
-
+		 System.out.println("parsing successful");
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("program",0, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
