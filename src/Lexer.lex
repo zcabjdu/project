@@ -80,6 +80,7 @@ HalfDeclaration    = {Identifier}{WhiteSpace}*":"[:=]?
   "tdef"                         {return symbol(sym.TK_TDEF);}
   "fdef"                         {return symbol(sym.TK_FDEF);}
   ">"                            {return symbol(sym.TK_LARGER);}
+  ">="                           {return symbol(sym.TK_LEQUALS);}
   "alias"                        {return symbol(sym.TK_ALIAS);}
   "return"                       {return symbol(sym.TK_RETURN);}
   "read"                         {return symbol(sym.TK_READ);}

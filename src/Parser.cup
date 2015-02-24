@@ -43,7 +43,7 @@ parser code {:
    the next line down. */
 terminal TK_LPAREN, TK_RPAREN, TK_LBRACKET, TK_RBRACKET, TK_LBRACE, TK_RBRACE;
 terminal TK_MINUS, TK_PLUS, TK_TIMES, TK_DIVIDE, TK_POWER, TK_DOT;
-terminal TK_EQUALS, TK_IMPLICATION, TK_NOTEQUALS, TK_SMALLER, TK_LARGER, TK_ASSIGNMENT, TK_SEQUALS, TK_NOT, TK_AND, TK_OR;
+terminal TK_EQUALS, TK_IMPLICATION, TK_NOTEQUALS, TK_SMALLER, TK_LARGER, TK_ASSIGNMENT, TK_SEQUALS, TK_LEQUALS, TK_NOT, TK_AND, TK_OR;
 terminal TK_INT, TK_FLOAT, TK_RAT, TK_BOOL, TK_DICTIONARY, TK_SEQUENCE, TK_CHAR;
 terminal TK_IN, TK_LEN, TK_FDEF, TK_TDEF, TK_MAIN, TK_TOP;
 terminal TK_SEMI, TK_COMMA, TK_COLON, TK_COLON_COLON;
@@ -88,7 +88,7 @@ non terminal dictionary_constant, dictionary_list, dictionary_list_opt, dictiona
 */
 
 precedence left TK_AND, TK_OR, TK_IMPLICATION;
-precedence left TK_EQUALS, TK_SEQUALS, TK_NOTEQUALS, TK_SMALLER;
+precedence left TK_EQUALS, TK_SEQUALS, TK_LEQUALS, TK_NOTEQUALS, TK_SMALLER, TK_LARGER;
 precedence left TK_PLUS, TK_MINUS;
 precedence left TK_IN, TK_COLON_COLON;
 precedence left TK_TIMES, TK_DIVIDE;
@@ -128,7 +128,7 @@ precedence left TK_LPAREN, TK_RPAREN;
                     TK_BOOL
                     | TK_RAT
                     | TK_INT
-                    | TK_FLOAT_CONSTANT
+                    | TK_FLOAT
                     | TK_CHAR
                     ;
     aggregate_type  ::= sequence_type | dictionary_type;
@@ -246,6 +246,8 @@ precedence left TK_LPAREN, TK_RPAREN;
                     | expression TK_TIMES expression
                     | expression TK_SMALLER expression
                     | expression TK_SEQUALS expression
+                    | expression TK_LARGER expression
+                    | expression TK_LEQUALS expression
                     | expression TK_EQUALS expression
                     | expression TK_NOTEQUALS expression
                     | expression TK_IMPLICATION expression
