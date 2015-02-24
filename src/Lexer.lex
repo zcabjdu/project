@@ -27,21 +27,16 @@ WhiteSpace     = {NewLine} | [ \t\v\f\r]
 Comment              = {OneLineComment} | {MultipleLinesComment}
 OneLineComment       = "#" {NonNewLineChar}* {NewLine}
 MultipleLinesComment = "/#" ~"#/"
-/*TODO: CHAR_constant*/
 BooleanConstant   = "T" | "F"
+RationalConstant = {IntegerConstant}_{IntegerConstant}"/"{IntegerConstant}
 IntegerConstant   = [0-9]+
 StringConstant    = "\"" ~"\""
-
+FloatConstant  = [0-9]+(\.[0-9]+)
 Identifier         = [a-zA-Z][a-zA-Z0-9_]*
+CharConstant      =\'[ -~]\'
 
-/* Ugly but needed to deal with the shift/reduce conflict when parsing the body */
-HalfDeclaration    = {Identifier}{WhiteSpace}*":" | {Identifier}{WhiteSpace}*":"[:=]
-
-
-/* TODO: floats, rats */
-Number = {IntegerConstant}
-
-
+// Ugly but needed to deal with the shift/reduce conflict when parsing the body
+HalfDeclaration    = {Identifier}{WhiteSpace}*":"[:=]?
 
 %%
 
@@ -55,8 +50,9 @@ Number = {IntegerConstant}
   "["                            {System.out.printf("[ "); return symbol(sym.TK_LBRACKET);}
   "]"                            {System.out.printf("] "); return symbol(sym.TK_RBRACKET);}
   ":="                           {System.out.printf(":= "); return symbol(sym.TK_ASSIGNMENT);}
+  "."                            {System.out.printf(". "); return symbol(sym.TK_DOT);}
   ";"                            {System.out.printf("; "); return symbol(sym.TK_SEMI);}
-  "::"                            {System.out.printf(":: "); return symbol(sym.TK_COLON_COLON);}
+  "::"                           {System.out.printf(". "); return symbol(sym.TK_COLON_COLON);}
   ":"                            {System.out.printf(": "); return symbol(sym.TK_COLON);}
   ","                            {System.out.printf(", "); return symbol(sym.TK_COMMA);}
   "-"                            {System.out.printf("- "); return symbol(sym.TK_MINUS);}
@@ -97,6 +93,7 @@ Number = {IntegerConstant}
   "od"                           {System.out.printf("od "); return symbol(sym.TK_OD);}
   "forall"                       {System.out.printf("forall "); return symbol(sym.TK_FORALL);}
   "top"                          {System.out.printf("top "); return symbol(sym.TK_TOP);}
+  {CharConstant}                 {System.out.printf(yytext() + " "); return symbol(sym.TK_CHAR_CONSTANT, yytext().substring(1, 2));}
   {StringConstant}               
   {
       String str = yytext();
@@ -107,7 +104,9 @@ Number = {IntegerConstant}
 
   {Comment}                      {}
   {WhiteSpace}                   {}
-  {Number}                       {System.out.printf(yytext() + " "); return symbol(sym.TK_STRING_CONSTANT, new Integer(yytext()));}
+  {RationalConstant}             {System.out.printf(yytext() + " "); return symbol(sym.TK_RATIONAL_CONSTANT, new String(yytext()));}
+  {FloatConstant}                {System.out.printf(yytext() + " "); return symbol(sym.TK_FLOAT_CONSTANT, new Float(yytext()));}
+  {IntegerConstant}              {System.out.printf(yytext() + " "); return symbol(sym.TK_INTEGER_CONSTANT, new Integer(yytext()));}
   {BooleanConstant}              {System.out.printf(yytext() + " "); return symbol(sym.TK_BOOLEAN_CONSTANT, new Boolean("T".equals(yytext())));}
   {HalfDeclaration}              
   {
@@ -132,3 +131,4 @@ Number = {IntegerConstant}
   }
   {Identifier}                   {System.out.printf(yytext() + " "); return symbol(sym.TK_IDENTIFIER, yytext());}
 }
+[^]                    { System.out.printf("FUCK\n");}

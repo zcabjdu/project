@@ -42,15 +42,17 @@ parser code {:
    that do have an value, in this case an integer value, are listed on
    the next line down. */
 terminal TK_LPAREN, TK_RPAREN, TK_LBRACKET, TK_RBRACKET, TK_LBRACE, TK_RBRACE;
-terminal TK_MINUS, TK_PLUS, TK_TIMES, TK_DIVIDE, TK_POWER;
+terminal TK_MINUS, TK_PLUS, TK_TIMES, TK_DIVIDE, TK_POWER, TK_DOT;
 terminal TK_EQUALS, TK_IMPLICATION, TK_NOTEQUALS, TK_SMALLER, TK_LARGER, TK_ASSIGNMENT, TK_SEQUALS, TK_NOT, TK_AND, TK_OR;
 terminal TK_INT, TK_FLOAT, TK_RAT, TK_BOOL, TK_DICTIONARY, TK_SEQUENCE, TK_CHAR;
 terminal TK_IN, TK_LEN, TK_FDEF, TK_TDEF, TK_MAIN, TK_TOP;
 terminal TK_SEMI, TK_COMMA, TK_COLON, TK_COLON_COLON;
 terminal TK_ALIAS, TK_RETURN, TK_READ, TK_PRINT, TK_IF, TK_FI, TK_THEN, TK_ELSE, TK_WHILE, TK_HALF_DECLARATION;
 terminal TK_DO, TK_OD, TK_FORALL, UMINUS;
-terminal Integer   TK_INTEGER;
+terminal Integer   TK_INTEGER_CONSTANT;
 terminal Boolean   TK_BOOLEAN_CONSTANT;
+terminal Float     TK_FLOAT_CONSTANT;
+terminal String    TK_RATIONAL_CONSTANT, TK_CHAR_CONSTANT;
 terminal String    TK_IDENTIFIER, TK_STRING_CONSTANT;
    
 /* Non terminals used in the grammar section.  
@@ -123,7 +125,7 @@ precedence left TK_LPAREN, TK_RPAREN;
                     TK_BOOL
                     | TK_RAT
                     | TK_INT
-                    | TK_FLOAT
+                    | TK_FLOAT_CONSTANT
                     | TK_CHAR
                     ;
     aggregate_type  ::= sequence_type | dictionary_type;
@@ -151,7 +153,7 @@ precedence left TK_LPAREN, TK_RPAREN;
                     | nonempty_declaration_list
                     ;
     type_opt                      ::=
-                    | type
+                    | TK_COLON type
                     ;
     body                          ::=
                     variable_declaration_list_opt statements_list_opt
@@ -241,9 +243,12 @@ precedence left TK_LPAREN, TK_RPAREN;
                     | expression TK_NOTEQUALS expression
                     | expression TK_IMPLICATION expression
                     | expression TK_COLON_COLON expression
-                    | TK_INTEGER
+                    | TK_INTEGER_CONSTANT
+                    | TK_FLOAT_CONSTANT
                     | TK_BOOLEAN_CONSTANT
                     | TK_STRING_CONSTANT
+                    | TK_CHAR_CONSTANT
+                    | TK_RATIONAL_CONSTANT
                     | sequence_constant
                     | dictionary_constant
                     | TK_LPAREN expression TK_RPAREN
@@ -256,6 +261,8 @@ precedence left TK_LPAREN, TK_RPAREN;
                     | TK_IDENTIFIER
                     | value_index
                     | value_substring
+                    | TK_IDENTIFIER TK_DOT TK_IDENTIFIER
+                    | function_call_expression TK_DOT TK_IDENTIFIER
                     ; 
     sequence_constant  ::= TK_LBRACKET expressions_list_opt TK_RBRACKET;
     len_expression     ::= TK_LEN TK_LPAREN expression TK_RPAREN;

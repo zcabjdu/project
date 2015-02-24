@@ -6,64 +6,68 @@
 /** CUP generated class containing symbol constants. */
 public class sym {
   /* terminals */
-  public static final int TK_EQUALS = 13;
+  public static final int TK_EQUALS = 14;
   public static final int TK_MINUS = 8;
-  public static final int TK_INT = 23;
+  public static final int TK_INT = 24;
   public static final int TK_LPAREN = 2;
-  public static final int TK_SEMI = 36;
-  public static final int UMINUS = 53;
-  public static final int TK_NOT = 20;
-  public static final int TK_AND = 21;
-  public static final int TK_COMMA = 37;
-  public static final int TK_IN = 30;
-  public static final int TK_OR = 22;
+  public static final int TK_SEMI = 37;
+  public static final int TK_CHAR_CONSTANT = 59;
+  public static final int UMINUS = 54;
+  public static final int TK_NOT = 21;
+  public static final int TK_AND = 22;
+  public static final int TK_COMMA = 38;
+  public static final int TK_IN = 31;
+  public static final int TK_OR = 23;
   public static final int TK_RPAREN = 3;
-  public static final int TK_SEQUALS = 19;
-  public static final int TK_COLON_COLON = 39;
-  public static final int TK_FI = 45;
-  public static final int TK_IF = 44;
-  public static final int TK_RAT = 25;
+  public static final int TK_SEQUALS = 20;
+  public static final int TK_FLOAT_CONSTANT = 57;
+  public static final int TK_COLON_COLON = 40;
+  public static final int TK_INTEGER_CONSTANT = 55;
+  public static final int TK_FI = 46;
+  public static final int TK_IF = 45;
+  public static final int TK_RAT = 26;
   public static final int TK_RBRACKET = 5;
-  public static final int TK_TDEF = 33;
-  public static final int TK_BOOL = 26;
-  public static final int TK_DICTIONARY = 27;
-  public static final int TK_OD = 51;
-  public static final int TK_IMPLICATION = 14;
+  public static final int TK_TDEF = 34;
+  public static final int TK_BOOL = 27;
+  public static final int TK_DICTIONARY = 28;
+  public static final int TK_DOT = 13;
+  public static final int TK_OD = 52;
+  public static final int TK_IMPLICATION = 15;
   public static final int TK_PLUS = 9;
-  public static final int TK_MAIN = 34;
-  public static final int TK_RETURN = 41;
-  public static final int TK_LARGER = 17;
-  public static final int TK_HALF_DECLARATION = 49;
+  public static final int TK_MAIN = 35;
+  public static final int TK_RETURN = 42;
+  public static final int TK_LARGER = 18;
+  public static final int TK_HALF_DECLARATION = 50;
   public static final int TK_TIMES = 10;
-  public static final int TK_COLON = 38;
-  public static final int TK_TOP = 35;
-  public static final int TK_NOTEQUALS = 15;
+  public static final int TK_COLON = 39;
+  public static final int TK_TOP = 36;
+  public static final int TK_NOTEQUALS = 16;
   public static final int EOF = 0;
-  public static final int TK_FDEF = 32;
+  public static final int TK_FDEF = 33;
   public static final int error = 1;
-  public static final int TK_WHILE = 48;
-  public static final int TK_FLOAT = 24;
+  public static final int TK_WHILE = 49;
+  public static final int TK_FLOAT = 25;
   public static final int TK_LBRACE = 6;
-  public static final int TK_ELSE = 47;
-  public static final int TK_SEQUENCE = 28;
-  public static final int TK_READ = 42;
-  public static final int TK_ALIAS = 40;
-  public static final int TK_BOOLEAN_CONSTANT = 55;
+  public static final int TK_ELSE = 48;
+  public static final int TK_SEQUENCE = 29;
+  public static final int TK_READ = 43;
+  public static final int TK_ALIAS = 41;
+  public static final int TK_BOOLEAN_CONSTANT = 56;
   public static final int TK_RBRACE = 7;
-  public static final int TK_LEN = 31;
-  public static final int TK_THEN = 46;
-  public static final int TK_PRINT = 43;
-  public static final int TK_DO = 50;
+  public static final int TK_LEN = 32;
+  public static final int TK_THEN = 47;
+  public static final int TK_PRINT = 44;
+  public static final int TK_DO = 51;
   public static final int TK_LBRACKET = 4;
-  public static final int TK_IDENTIFIER = 56;
+  public static final int TK_IDENTIFIER = 60;
   public static final int TK_POWER = 12;
-  public static final int TK_ASSIGNMENT = 18;
-  public static final int TK_STRING_CONSTANT = 57;
-  public static final int TK_FORALL = 52;
+  public static final int TK_ASSIGNMENT = 19;
+  public static final int TK_STRING_CONSTANT = 61;
+  public static final int TK_RATIONAL_CONSTANT = 58;
+  public static final int TK_FORALL = 53;
   public static final int TK_DIVIDE = 11;
-  public static final int TK_INTEGER = 54;
-  public static final int TK_CHAR = 29;
-  public static final int TK_SMALLER = 16;
+  public static final int TK_CHAR = 30;
+  public static final int TK_SMALLER = 17;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
@@ -78,6 +82,7 @@ public class sym {
   "TK_TIMES",
   "TK_DIVIDE",
   "TK_POWER",
+  "TK_DOT",
   "TK_EQUALS",
   "TK_IMPLICATION",
   "TK_NOTEQUALS",
@@ -119,8 +124,11 @@ public class sym {
   "TK_OD",
   "TK_FORALL",
   "UMINUS",
-  "TK_INTEGER",
+  "TK_INTEGER_CONSTANT",
   "TK_BOOLEAN_CONSTANT",
+  "TK_FLOAT_CONSTANT",
+  "TK_RATIONAL_CONSTANT",
+  "TK_CHAR_CONSTANT",
   "TK_IDENTIFIER",
   "TK_STRING_CONSTANT"
   };
